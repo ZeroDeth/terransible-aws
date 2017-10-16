@@ -1,0 +1,49 @@
+{
+    "variables": {
+        "aws_access_key": "",
+        "aws_secret_key": ""
+    },
+    "builders": [{
+        "type": "amazon-ebs",
+        "access_key": "{{user `aws_access_key`}}",
+        "secret_key": "{{user `aws_secret_key`}}",
+        "region": "eu-west-1",
+        "source_ami": "ami-785db401",
+        "instance_type": "t2.micro",
+        "ssh_username": "ubuntu",
+        "ami_name": "packer-example {{timestamp}}"
+    }],
+    "provisioners": [{
+            "type": "shell",
+            "inline": ["sleep 30"]
+        },
+        {
+            "type": "shell",
+            "scripts": [
+                "scripts/ansible.sh"
+            ],
+            "execute_command": "{{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "pause_before": "10s"
+        },
+        {
+            "type": "shell",
+            "scripts": [
+                "scripts/setup.sh"
+            ],
+            "execute_command": "{{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "pause_before": "10s"
+        },
+        {
+            "type": "ansible-local",
+            "playbook_file": "ansible/local.yml"
+        },
+        {
+            "type": "shell",
+            "scripts": [
+                "scripts/cleanup.sh"
+            ],
+            "execute_command": "{{ .Vars }} sudo -E sh '{{ .Path }}'",
+            "pause_before": "10s"
+        }
+    ]
+}

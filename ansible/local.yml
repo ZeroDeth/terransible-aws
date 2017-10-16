@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  tasks:
+
+    - apt: "name={{ item }} state=installed"
+      with_items:
+        - git
+        - wget
+        - curl
+        - vim
+        - elinks
+        - mysql-client-5.7
+        - python-mysqldb
+        - mytop
+
+    - name: Clean up apt.
+      command: "{{ item }}"
+      with_items:
+        - apt-get -y autoremove
+        - apt-get -y clean
